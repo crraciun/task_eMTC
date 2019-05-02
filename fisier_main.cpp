@@ -11,25 +11,32 @@
 #include <boost/program_options.hpp>
 #include <cstdlib>
 #include <iostream>
+#include<unistd.h>
+//#include<stdlib.h>
+#include<string.h>
 #include "stare_dispozitiv.h"
-/*
-namespace {
-//! Conditionally append find_all=1 if the key isn't there yet
-uhd::device_addr_t append_findall(const uhd::device_addr_t& device_args)
-{
-    uhd::device_addr_t new_device_args(device_args);
-    if (!new_device_args.has_key("find_all")) {
-        new_device_args["find_all"] = "1";
-    }
-
-    return new_device_args;
-}
-} // namespace*/
 
 namespace po = boost::program_options;
 
 int UHD_SAFE_MAIN(int argc, char* argv[])
 {
 	devices_found(argc, argv);
+	
+
+	pid_t pid;
+     char *pathvar;
+     char newpath[1000];
+
+     pathvar = getenv("uhd/host/build/utils/");
+     strcpy(newpath, pathvar);
+     strcat(newpath, ":u/userid/bin");
+     setenv("uhd/host/build/utils/", newpath,1);
+
+     if ((pid = fork()) == -1)
+        perror("fork error");
+     else if (pid == 0) {
+        execlp("uhd_usrp_probe", "uhd_usrp_probe", NULL);
+        printf("Return not expected. Must be an execlp error.n");
+	 }
 	return 0;
 }
